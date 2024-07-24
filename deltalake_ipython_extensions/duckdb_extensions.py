@@ -26,7 +26,14 @@ def write_delta(line, cell):
         raise ValueError('Invalid arguments. Expected path and mode')
     
     storage_options = json.loads(os.environ.get('STORAGE_OPTIONS', '{}'))
-    write_deltalake(path, duckdb_conn.execute(cell).fetch_record_batch(rows_per_batch=100000), storage_options=storage_options, mode=mode)
+    write_deltalake(
+        path,
+        duckdb_conn.execute(cell).fetch_record_batch(rows_per_batch=100000),
+        storage_options=storage_options,
+        mode=mode,
+        schema_mode='overwrite' if mode == 'overwrite' else 'merge',
+        engine='rust',
+    )
     return f'Written delta table to {path}'
 
 
